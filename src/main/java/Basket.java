@@ -6,7 +6,6 @@ import org.json.simple.parser.ParseException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class Basket {
@@ -82,22 +81,24 @@ public class Basket {
         JSONObject obj = new JSONObject();
 
         JSONArray productsJSON =new JSONArray();
-        Collections.addAll(productsJSON, products);
+        for (String product : products) {
+            productsJSON.add(product);
+        }
         obj.put("products", productsJSON);
 
-        JSONArray pricesJSON =new JSONArray();
+        JSONArray pricesJSON = new JSONArray();
         for (int price : prices) {
             pricesJSON.add(price);
         }
         obj.put("prices", pricesJSON);
 
-        JSONArray countsJSON =new JSONArray();
+        JSONArray countsJSON = new JSONArray();
         for (int count : counts) {
             countsJSON.add(count);
         }
         obj.put("counts", countsJSON);
 
-        try (FileWriter file = new FileWriter("basket.json")) {
+        try (FileWriter file = new FileWriter(jsonFile)) {
             file.write(obj.toJSONString());
             file.flush();
         } catch (IOException e) {
@@ -105,11 +106,11 @@ public class Basket {
         }
     }
 
-    static Basket loadFromJSON(File textFile) throws Exception {
+    static Basket loadFromJSON(File jsonFile) throws Exception {
         JSONParser parser = new JSONParser();
         
         try {
-            Object obj = parser.parse(new FileReader("basket.json"));
+            Object obj = parser.parse(new FileReader(jsonFile));
             JSONObject jsonObject = (JSONObject) obj;
 
             List<String> productsTmp2 = new ArrayList<>();
@@ -137,18 +138,26 @@ public class Basket {
             for (Object count : countsTmp1) {
                 countsTmp2.add(Math.toIntExact((Long) count));
             }
-            int[] counts = new int[countsTmp2.size()];
+            int[] counts1 = new int[countsTmp2.size()];
             for (int i = 0; i < countsTmp2.size(); i++) {
-                counts[i] = countsTmp2.get(i);
+                counts1[i] = countsTmp2.get(i);
             }
 
             Basket basket = new Basket(products, prices);
-            basket.counts = counts;
+            basket.counts = counts1;
             return basket;
 
         } catch (IOException | ParseException e) {
             throw new RuntimeException(e);
         }
 
+    }
+    @Override
+    public String toString() {
+        return "Basket{" +
+                "products=" + Arrays.toString(products) +
+                ", prices=" + Arrays.toString(prices) +
+                ", counts=" + Arrays.toString(counts) +
+                '}';
     }
 }
