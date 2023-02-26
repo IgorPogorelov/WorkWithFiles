@@ -20,6 +20,10 @@ public class Basket {
         return prices;
     }
 
+    public int[] getCounts() {
+        return counts;
+    }
+
     public void addToCart(int productNum, int amount) {
         counts[productNum] += amount;
     }
